@@ -9,7 +9,7 @@ import shapes.Shape;
  * MoveAction implements a single undoable action where all the Shapes in a
  * given Selection are moved.
  */
-public class MoveAction implements DrawAction {
+public class MoveAction implements DrawAction, UnityAction {
 
 	Selection selected;
 	Point movement;
@@ -48,6 +48,25 @@ public class MoveAction implements DrawAction {
 		for (Shape s : selected) {
 			s.move(-movement.x, -movement.y);
 		}
+	}
+
+	public boolean unity(UnityAction otherObject)
+	{
+		if (!(otherObject instanceof MoveAction))
+		{
+			return false;
+		}
+
+		MoveAction otherCommand = (MoveAction) otherObject;
+
+		if (!this.selected.equals(otherCommand.selected))
+		{
+			return false;
+		}
+
+		this.movement.translate(otherCommand.movement.x, otherCommand.movement.y);
+
+		return true;
 	}
 
 }

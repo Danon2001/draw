@@ -132,4 +132,19 @@ public abstract class Shape {
 		return str;
 	}
 
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof Shape otherShape)
+		{
+			return this.point1.equals(otherShape.point1)
+					&& this.point2.equals(otherShape.point2)
+					&& this.selected == otherShape.selected
+					&& this.color.equals(otherShape.color)
+					&& this.strokeWidth == otherShape.strokeWidth;
+		}
+
+		return super.equals(obj);
+	}
+
 }

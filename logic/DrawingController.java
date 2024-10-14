@@ -38,6 +38,12 @@ public class DrawingController {
 
 	}
 
+	public void colorShape(Shape shape, Color color)
+	{
+		DrawAction c = new ColorAction(shape, color);
+		c.execute();
+	}
+
 	public void colorSelectedShapes(Color c) {
 		for (Shape s : selection) {
 			DrawAction col = new ColorAction(s, c);
@@ -69,6 +75,7 @@ public class DrawingController {
 		if (!selection.isEmpty()) {
 			DrawAction move = new MoveAction(selection, movement);
 			move.execute();
+			undoManager.addAction(move);
 		}
 	}
 
@@ -76,13 +83,6 @@ public class DrawingController {
 		drawing = new Drawing(size);
 		if (gui != null) {
 			gui.updateDrawing();
-		}
-	}
-
-	public void recordMovement(Point movement) {
-		if (!selection.isEmpty()) {
-			DrawAction move = new MoveAction(selection, movement);
-			undoManager.addAction(move);
 		}
 	}
 

@@ -134,7 +134,7 @@ public class MouseListener extends MouseAdapter {
 		}
 
 		if (newShape != null) {
-			newShape.setColor(tools.getColor());
+			c.colorShape(newShape, tools.getColor());
 			c.addShape(newShape);
 		}
 
@@ -144,16 +144,7 @@ public class MouseListener extends MouseAdapter {
 		isDrawing = false;
 		newShape = null;
 
-		if (c.getTool() == Tool.SELECT) {
-
-			Point total = new Point(m.getPoint().x - startPos.x, m.getPoint().y
-					- startPos.y);
-
-			if ((total.x != 0) || (total.y != 0)) {
-				c.recordMovement(total);
-			}
-
-		}
+		c.getDrawing().repaint();
 	}
 
 }

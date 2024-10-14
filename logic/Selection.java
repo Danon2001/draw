@@ -62,4 +62,27 @@ public class Selection implements Iterable<Shape> {
 		str += "\n";
 		return str;
 	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof Selection otherSelection)
+		{
+			if(this.selected.size() == otherSelection.selected.size())
+			{
+				boolean result = true;
+
+				for(int i = 0; i < this.selected.size(); i++)
+				{
+					result &= this.selected.get(i).equals(otherSelection.selected.get(i));
+				}
+
+				return result;
+			} else
+			{
+				return false;
+			}
+		}
+		return super.equals(obj);
+	}
 }

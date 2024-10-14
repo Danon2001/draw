@@ -86,10 +86,9 @@ public class DrawIO {
 
 					if (sh != null) {
 						sh.setPoint2(p2);
-						sh
-								.setColor(new Color(Integer.parseInt(parts[3]
-										.trim())));
-						c.getDrawing().insertShape(sh);
+						c.colorShape(sh, new Color(Integer.parseInt(parts[3]
+								.trim())));
+						c.addShape(sh);
 					}
 				}
 				catch (ArrayIndexOutOfBoundsException e) {

@@ -36,10 +36,27 @@ public class UndoManager {
 	 * @param action
 	 *            the UndoableAction to be added.
 	 */
-	public void addAction(DrawAction action) {
+	public void addAction(DrawAction action)
+	{
 		this.redoStack.clear();
+
+		// Проверяем, не пуст ли стек операций "Отменить"
+		if (!this.undoStack.isEmpty())
+		{
+			DrawAction lastAction = this.undoStack.peek();
+
+			// Проверяем, что обе операции являются UnityAction и можно их объединить
+			if (action instanceof UnityAction unityAction &&
+					lastAction instanceof UnityAction lastUnityAction &&
+					lastUnityAction.unity(unityAction))
+			{
+				return;
+			}
+		}
+
 		this.undoStack.push(action);
 	}
+
 
 	/**
 	 * Tests if an redo operation can be performed at this moment.
