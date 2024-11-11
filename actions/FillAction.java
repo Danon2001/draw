@@ -1,6 +1,6 @@
 package actions;
 
-import logic.Selection;
+import shapes.Selection;
 import shapes.FillableShape;
 import shapes.Shape;
 

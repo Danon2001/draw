@@ -12,8 +12,8 @@ import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import logic.DrawIO;
-import logic.DrawingController;
+import controller.DrawIO;
+import controller.DrawingController;
 
 /**
  * Listens to actions from the buttons in a menu and modifies the Drawing
@@ -27,8 +27,11 @@ public class MenuListener implements ActionListener {
 	DrawingController controller;
 	JFileChooser fileDialog;
 
-	public MenuListener(DrawingController c) {
+	DrawGUI.DrawingContainer drawingContainer;
+
+	public MenuListener(DrawingController c, DrawGUI.DrawingContainer drawingContainer) {
 		this.controller = c;
+		this.drawingContainer = drawingContainer;
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -57,8 +60,7 @@ public class MenuListener implements ActionListener {
 		}
 
 		else if (cmd.equals("Clear selection")) {
-			controller.getSelection().empty();
-			controller.getDrawing().repaint();
+			controller.clearSelection();
 		}
 
 		else if (cmd.equals("Delete")) {
@@ -112,7 +114,7 @@ public class MenuListener implements ActionListener {
 
 			File f = fileDialog.getSelectedFile();
 			if (f != null) {
-				fio.export(f, controller);
+				fio.export(f, controller, drawingContainer);
 			}
 
 		}

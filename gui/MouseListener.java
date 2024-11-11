@@ -4,15 +4,17 @@ import java.awt.Point;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 
-import logic.DrawingController;
-import logic.Tool;
 import shapes.Circle;
-import shapes.FillableShape;
 import shapes.Line;
 import shapes.Rectangle;
 import shapes.Shape;
 import shapes.Text;
+import events.SelectedShapeActionEvent;
+import events.SelectedShapeActionListener;
+import controller.DrawingController;
+
 
 /**
  * MouseListener listens to the mouse events in a drawing and modifies the
@@ -28,12 +30,8 @@ public class MouseListener extends MouseAdapter {
 	private ToolBox tools;
 
 	boolean isDrawing;
-	boolean multiSelect;
 
-	private Point startPos;
 	private Point lastPos;
-
-	private Point mouseDelta;
 
 	private Shape newShape;
 
@@ -50,24 +48,20 @@ public class MouseListener extends MouseAdapter {
 		this.tools = t;
 		this.c = c;
 		this.newShape = null;
-		this.mouseDelta = new Point(0, 0);
 
 	}
 
 	public void mouseDragged(MouseEvent m) {
 
-		mouseDelta.x = m.getPoint().x - lastPos.x;
-		mouseDelta.y = m.getPoint().y - lastPos.y;
+		Point positionPoint = m.getPoint();
 
 		if (isDrawing && (newShape != null)) {
-			newShape.setPoint2(lastPos);
+			c.changeSizeShape(newShape, lastPos);
 		}
 
-		if (c.getTool() == Tool.SELECT) {
-			c.moveSelectedShapes(new Point(mouseDelta.x, mouseDelta.y));
+		if (tools.getTool() == Tool.SELECT) {
+			c.moveSelectedShapes(new Point(positionPoint.x - lastPos.x, positionPoint.y - lastPos.y));
 		}
-
-		c.getDrawing().repaint();
 
 		lastPos = m.getPoint();
 
@@ -78,64 +72,58 @@ public class MouseListener extends MouseAdapter {
 	}
 
 	public void mousePressed(MouseEvent m) {
-		startPos = lastPos;
 
-		Tool t = c.getTool();
+		Point positionPoint = m.getPoint();
+
+		Tool t = tools.getTool();
 		isDrawing = true;
 
 		if (t == Tool.SELECT) {
 
-			Shape tmp = c.getDrawing().getShapeAt(startPos);
+			Shape tmp = c.getDrawing().getShapeAt(positionPoint);
 
 			if (((m.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) == 0)
-					&& !c.getSelection().contains(tmp)) {
-				c.getSelection().empty();
+					&& !c.getDrawing().getSelection().contains(tmp)) {
+				c.clearSelection();
 			}
 
-			if ((tmp != null) && (!c.getSelection().contains(tmp))) {
+			if ((tmp != null) && (!c.getDrawing().getSelection().contains(tmp))) {
 
 				// empty the selection before selecting a new shape if shift is
 				// not down
 
-				tools.setColor(tmp.getColor());
-
-				if ((c.getSelection().isEmpty())
-						&& (tmp instanceof FillableShape)) {
-					tools.setFill(((FillableShape) tmp).getFilled());
+				if (c.getDrawing().getSelection().isEmpty()) {
+					this.fireSelectedShape(tmp);
 				}
-
-				if (tmp instanceof Text) {
-					tools.setFontSize(((Text) tmp).getFont().getSize());
-				}
-
-				c.getSelection().add(tmp);
+				c.addSelectionShape(tmp);
 
 			}
-
-			c.getDrawing().repaint();
 
 		}
 		else if (t == Tool.RECTANGLE) {
-			newShape = new Rectangle(startPos.x, startPos.y, tools.getFill());
+			newShape = new Rectangle(positionPoint.x, positionPoint.y, tools.getFill());
 		}
 		else if (t == Tool.CIRCLE) {
-			newShape = new Circle(startPos.x, startPos.y, tools.getFill());
+			newShape = new Circle(positionPoint.x, positionPoint.y, tools.getFill());
 		}
 		else if (t == Tool.LINE) {
-			newShape = new Line(startPos.x, startPos.y);
+			newShape = new Line(positionPoint.x, positionPoint.y);
 		}
 		else if (t == Tool.TEXT) {
 			try {
-				newShape = new Text(startPos.x, startPos.y, tools.getFontSize());
+				newShape = new Text(positionPoint.x, positionPoint.y, tools.getFontSize());
 			}
 			catch (IllegalArgumentException e) {
 			}
-			c.getDrawing().repaint();
 		}
 
 		if (newShape != null) {
 			c.colorShape(newShape, tools.getColor());
 			c.addShape(newShape);
+		}
+		if(newShape instanceof Text)
+		{
+			newShape = null;
 		}
 
 	}
@@ -144,7 +132,32 @@ public class MouseListener extends MouseAdapter {
 		isDrawing = false;
 		newShape = null;
 
-		c.getDrawing().repaint();
+	}
+
+
+
+	/*---------------------------------  Events  --------------------------------------------------------------------*/
+
+	private ArrayList<SelectedShapeActionListener> selectShapeListListener = new ArrayList<>();
+
+	public void addSelectShapeActionListener(SelectedShapeActionListener listener)
+	{
+		selectShapeListListener.add(listener);
+	}
+
+	public void removeSelectShapeActionListener(SelectedShapeActionListener listener)
+	{
+		selectShapeListListener.remove(listener);
+	}
+
+	private void fireSelectedShape(Shape shape)
+	{
+		for(SelectedShapeActionListener listener: selectShapeListListener)
+		{
+			SelectedShapeActionEvent event = new SelectedShapeActionEvent(listener);
+			event.setShape(shape);
+			listener.selectedShape(event);
+		}
 	}
 
 }

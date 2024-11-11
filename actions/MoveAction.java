@@ -2,8 +2,7 @@ package actions;
 
 import java.awt.Point;
 
-import logic.Selection;
-import shapes.Shape;
+import shapes.Selection;
 
 /**
  * MoveAction implements a single undoable action where all the Shapes in a
@@ -31,9 +30,7 @@ public class MoveAction implements DrawAction, UnityAction {
 	}
 
 	public void execute() {
-		for (Shape s : selected) {
-			s.move(movement.x, movement.y);
-		}
+		selected.move(movement.x, movement.y);
 	}
 
 	public String getDescription() {
@@ -45,9 +42,7 @@ public class MoveAction implements DrawAction, UnityAction {
 	}
 
 	public void undo() {
-		for (Shape s : selected) {
-			s.move(-movement.x, -movement.y);
-		}
+		selected.move(-movement.x, -movement.y);
 	}
 
 	public boolean unity(UnityAction otherObject)

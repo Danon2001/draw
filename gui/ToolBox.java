@@ -25,11 +25,16 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import logic.DrawingController;
-import logic.Tool;
+import controller.DrawingController;
+import events.SelectedShapeActionEvent;
+import events.SelectedShapeActionListener;
+import shapes.FillableShape;
+import shapes.Text;
+import shapes.Shape;
+
 
 public class ToolBox extends JToolBar implements ActionListener,
-		ChangeListener, ItemListener {
+		ChangeListener, ItemListener, SelectedShapeActionListener {
 
 	class ColorDialog extends JDialog {
 		private static final long serialVersionUID = 0;
@@ -53,7 +58,6 @@ public class ToolBox extends JToolBar implements ActionListener,
 					setVisible(false);
 					tb.setColor(colorChooser.getColor());
 					c.colorSelectedShapes(colorChooser.getColor());
-					c.getDrawing().repaint();
 				}
 			});
 			cancelButton.addActionListener(new ActionListener() {
@@ -81,11 +85,12 @@ public class ToolBox extends JToolBar implements ActionListener,
 	private JSpinner fontSpinner;
 
 	public Color color;
+	private Tool tool;
 
 	public ToolBox(DrawingController c) {
 		super("Tools", VERTICAL);
 		this.c = c;
-		// tool = Tool.LINE;
+		tool = Tool.LINE;
 		color = Color.BLACK;
 
 		select = new JToggleButton(new ImageIcon("img/cursor.png"));
@@ -165,19 +170,18 @@ public class ToolBox extends JToolBar implements ActionListener,
 		Object source = e.getSource();
 
 		if (source.equals(select)) {
-			c.setTool(Tool.SELECT);
+			this.setTool(Tool.SELECT);
 		}
 		else if (!source.equals(colorbutton)) {
-			c.getSelection().empty();
-			c.getDrawing().repaint();
+			c.clearSelection();
 		}
 
 		if (source.equals(circle)) {
-			c.setTool(Tool.CIRCLE);
+			this.setTool(Tool.CIRCLE);
 		}
 
 		if (source.equals(line)) {
-			c.setTool(Tool.LINE);
+			this.setTool(Tool.LINE);
 			fillCheckBox.setEnabled(false);
 		}
 		else {
@@ -185,10 +189,10 @@ public class ToolBox extends JToolBar implements ActionListener,
 		}
 
 		if (source.equals(rectangle)) {
-			c.setTool(Tool.RECTANGLE);
+			this.setTool(Tool.RECTANGLE);
 		}
 		else if (source.equals(text)) {
-			c.setTool(Tool.TEXT);
+			this.setTool(Tool.TEXT);
 		}
 		else if (source.equals(colorbutton)) {
 			new ColorDialog(this);
@@ -220,7 +224,6 @@ public class ToolBox extends JToolBar implements ActionListener,
 		}
 
 		c.toggleFilled();
-		c.getDrawing().repaint();
 
 	}
 
@@ -242,6 +245,27 @@ public class ToolBox extends JToolBar implements ActionListener,
 	public void stateChanged(ChangeEvent arg0) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public Tool getTool() {return tool;}
+
+	public void setTool(Tool t) { this.tool = t;}
+
+	public void selectedShape(SelectedShapeActionEvent event)
+	{
+		Shape selectedShape = event.getShape();
+
+		this.setColor(selectedShape.getColor());
+
+		if(selectedShape instanceof FillableShape)
+		{
+			this.setFill(((FillableShape) selectedShape).getFilled());
+		}
+
+		if(selectedShape instanceof Text)
+		{
+			this.setFontSize(((Text) selectedShape).getFont().getSize());
+		}
 	}
 
 }
