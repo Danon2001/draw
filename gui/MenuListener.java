@@ -111,14 +111,19 @@ public class MenuListener implements ActionListener {
 			fileDialog.addChoosableFileFilter(filter);
 
 			fileDialog.setSelectedFile(new File("out.png"));
-			fileDialog.showSaveDialog(null);
+			int userSelection = fileDialog.showSaveDialog(null);
 
-			File f = fileDialog.getSelectedFile();
-			if (f != null)
+			if (userSelection == JFileChooser.APPROVE_OPTION)
 			{
-				fio.export(f, controller, drawingContainer.getDrawingPan());
+				File f = fileDialog.getSelectedFile();
+				if (f != null)
+				{
+					fio.export(f, controller, drawingContainer.getDrawingPan());
+				}
+			} else
+			{
+				System.out.println("Export PNG operation was canceled.");
 			}
-
 		}
 
 		else if (cmd.equals("New")) {
