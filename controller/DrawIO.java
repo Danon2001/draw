@@ -14,28 +14,32 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
+import gui.DrawingPan;
 import shapes.Circle;
 import shapes.Line;
 import shapes.Rectangle;
 import shapes.Shape;
 import shapes.Text;
 import shapes.Drawing;
-import gui.DrawGUI;
 
 
-public class DrawIO {
+public class DrawIO
+{
 
-    public void export(File f, DrawingController c, DrawGUI.DrawingContainer drawingContainer) {
-        try {
+    public void export(File f, DrawingController c, DrawingPan drawingPan)
+    {
+        try
+        {
             c.getDrawing().clearSelection();
-            BufferedImage bi = drawingContainer.getImage(); // retrieve image
+            BufferedImage bi = drawingPan.getImage(); // retrieve image
             ImageIO.write(bi, "png", f);
         }
         catch (IOException e) {
         }
     }
 
-    public Point getPoint(String str) {
+    public Point getPoint(String str)
+    {
         String[] p = str.split(",");
 
         return new Point(Integer.parseInt(p[0].trim()), Integer.parseInt(p[1]
@@ -43,19 +47,24 @@ public class DrawIO {
 
     }
 
-    public void open(File f, DrawingController c) {
+    public void open(File f, DrawingController c)
+    {
         int lineNumber = 1;
-        try {
+        try
+        {
             BufferedReader in = new BufferedReader(new FileReader(f));
             String str;
 
             Point p = getPoint(in.readLine());
             c.newDrawing(new Dimension(p.x, p.y));
 
-            while ((str = in.readLine()) != null) {
-                try {
+            while ((str = in.readLine()) != null)
+            {
+                try
+                {
                     lineNumber++;
-                    if (str.length() == 0) {
+                    if (str.length() == 0)
+                    {
                         continue;
                     }
 
@@ -66,39 +75,47 @@ public class DrawIO {
                     Shape sh = null;
                     parts[0] = parts[0].trim();
 
-                    if (parts[0].equals("rect")) {
+                    if (parts[0].equals("rect"))
+                    {
                         boolean fill = Integer.parseInt(parts[4].trim()) == 0 ? false
                                 : true;
                         sh = new Rectangle(p1.x, p1.y, fill);
                     }
-                    else if (parts[0].equals("circ")) {
+                    else if (parts[0].equals("circ"))
+                    {
                         boolean fill = Integer.parseInt(parts[4].trim()) == 0 ? false
                                 : true;
                         sh = new Circle(p1.x, p1.y, fill);
                     }
-                    else if (parts[0].equals("line")) {
+                    else if (parts[0].equals("line"))
+                    {
                         sh = new Line(p1.x, p1.y);
                     }
-                    else if (parts[0].equals("text")) {
+                    else if (parts[0].equals("text"))
+                    {
                         int fontSize = Integer.parseInt(parts[4].trim());
                         sh = new Text(p1.x, p1.y, fontSize, parts[5]);
                     }
-                    else {
+                    else
+                    {
                         throw new ArrayIndexOutOfBoundsException();
                     }
 
-                    if (sh != null) {
+                    if (sh != null)
+                    {
                         sh.setPoint2(p2);
                         c.colorShape(sh, new Color(Integer.parseInt(parts[3]
                                 .trim())));
                         c.addShape(sh);
                     }
                 }
-                catch (ArrayIndexOutOfBoundsException e) {
+                catch (ArrayIndexOutOfBoundsException e)
+                {
                     System.out.println("Could not read line " + lineNumber
                             + " in file \"" + f + "\"");
                 }
-                catch (NumberFormatException e) {
+                catch (NumberFormatException e)
+                {
                     System.out.println("Could not read line " + lineNumber
                             + " in file \"" + f + "\"");
                 }
@@ -107,31 +124,35 @@ public class DrawIO {
 
             in.close();
         }
-        catch (IOException e) {
+        catch (IOException e)
+        {
             e.printStackTrace(System.out);
         }
     }
 
-    public void save(File f, DrawingController c) {
+    public void save(File f, DrawingController c)
+    {
         Drawing d = c.getDrawing();
 
-        try {
+        try
+        {
             BufferedWriter out = new BufferedWriter(new FileWriter(f));
 
             out.write(d.getSize().width + ","
                     + d.getSize().height + "\n");
 
-            for (Shape s : c.getDrawing()) {
+            for (Shape s : c.getDrawing())
+            {
                 out.write(s.toString() + "\n");
             }
             out.close();
 
         }
-        catch (IOException e) {
+        catch (IOException e)
+        {
             JOptionPane.showMessageDialog(null, "Could not save the drawing.",
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
-
     }
 }
 

@@ -29,7 +29,8 @@ public class MenuListener implements ActionListener {
 
 	DrawGUI.DrawingContainer drawingContainer;
 
-	public MenuListener(DrawingController c, DrawGUI.DrawingContainer drawingContainer) {
+	public MenuListener(DrawingController c, DrawGUI.DrawingContainer drawingContainer)
+	{
 		this.controller = c;
 		this.drawingContainer = drawingContainer;
 	}
@@ -113,8 +114,9 @@ public class MenuListener implements ActionListener {
 			fileDialog.showSaveDialog(null);
 
 			File f = fileDialog.getSelectedFile();
-			if (f != null) {
-				fio.export(f, controller, drawingContainer);
+			if (f != null)
+			{
+				fio.export(f, controller, drawingContainer.getDrawingPan());
 			}
 
 		}
