@@ -1,12 +1,9 @@
 package gui;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 
 import javax.swing.*;
 
-import events.RepaintActionEvent;
-import events.RepaintActionListener;
 import shapes.Drawing;
 import controller.DrawingController;
 
@@ -26,87 +23,43 @@ public class DrawGUI extends JFrame {
 	 * @author Alex Lagerstedt
 	 * 
 	 */
-	public class DrawingContainer extends JPanel implements RepaintActionListener {
+	public class DrawingContainer extends JPanel
+	{
 
 		private static final long serialVersionUID = 0;
 
-		private Drawing drawing;
+		private DrawingPan drawingPan;
+
 
 		public DrawingContainer() {
 			super(new GridBagLayout());
 		}
 
-		public void setDrawing(Drawing newDrawing) {
+		public void setDrawing(Drawing drawing)
+		{
 			this.removeAll();
-			removeAllMouseListeners();
-			removeAllMouseMotionListeners();
 
-			// Установка нового рисунка и настройка слушателей
-			this.drawing = newDrawing;
-			mouse = new MouseListener(controller, tools);
-			addMouseListeners(mouse);
-
-			// Настройка внешнего вида панели
-			setupPanelAppearance(newDrawing);
+			drawingPan = new DrawingPan(drawing, tools);
+			this.add(drawingPan);
+			drawing.addRepaintActionListener(drawingPan);
+			drawing.addShapeIsInsertedActionListener(drawingPan);
+			drawing.addShapeHasBeenDeletedActionListener(drawingPan);
+			drawing.addShapeHasBeenDeletedActionListener(mainMenu);
+			setPreferredSize(drawingPan.getPreferredSize());
 
 			pack();
 		}
 
-		private void removeAllMouseListeners()
+		public DrawingPan getDrawingPan()
 		{
-			for (java.awt.event.MouseListener listener : this.getMouseListeners())
-			{
-				this.removeMouseListener(listener);
-			}
+			return drawingPan;
 		}
 
-		private void removeAllMouseMotionListeners()
-		{
-			for (java.awt.event.MouseMotionListener listener : this.getMouseMotionListeners())
-			{
-				this.removeMouseMotionListener(listener);
-			}
-		}
-
-		private void addMouseListeners(MouseListener mouseListener)
-		{
-			this.addMouseListener(mouseListener);
-			this.addMouseMotionListener(mouseListener);
-			mouseListener.addSelectShapeActionListener(tools);
-		}
-
-		private void setupPanelAppearance(Drawing drawing)
-		{
-			setBorder(BorderFactory.createLineBorder(Color.BLACK));
-			setBackground(Color.WHITE);
-			setPreferredSize(drawing.getSize());
 		}
 
 
-		public BufferedImage getImage() {
-
-			BufferedImage bi = new BufferedImage(getPreferredSize().width,
-					getPreferredSize().height, BufferedImage.TYPE_INT_RGB);
-			Graphics g = bi.createGraphics();
-			this.print(g);
-			return bi;
-		}
-
-		public void paintComponent(Graphics g) {
-
-			super.paintComponent(g);
-			drawing.drawShapes(g);
-		}
-
-		@Override
-		public void repaint(RepaintActionEvent event) {
-			this.repaint();
-		}
-	}
-
-
-	public class StatusBar extends JLabel {
-
+	public class StatusBar extends JLabel
+	{
 		private static final long serialVersionUID = 0;
 
 		public StatusBar() {
@@ -122,9 +75,9 @@ public class DrawGUI extends JFrame {
 
 	private DrawingController controller;
 	private DrawingContainer drawingContainer;
-	private MouseListener mouse;
 	private ToolBox tools;
 	private JScrollPane scrollpane;
+	private MainMenu mainMenu;
 
 
 	private static final long serialVersionUID = 0;
@@ -148,19 +101,17 @@ public class DrawGUI extends JFrame {
 		scrollpane = new JScrollPane(drawingContainer);
 
 		controller = new DrawingController(this);
-		controller.addRepaintActionListener(drawingContainer);
 		tools = new ToolBox(controller);
-		controller.newDrawing(new Dimension(500, 380));
-
-
 		getContentPane().add(tools, BorderLayout.WEST);
 		getContentPane().add(scrollpane, BorderLayout.CENTER);
-		// getContentPane().add(statusBar, BorderLayout.SOUTH);
 
 		MenuListener mainMenuListener = new MenuListener(controller, drawingContainer);
-		JMenuBar mainMenu = new MainMenu(mainMenuListener);
+		mainMenu = new MainMenu(mainMenuListener);
+		controller.getUndoManager().addChangedUndoStackActionListener(mainMenu);
+		controller.getUndoManager().addChangedRedoStackActionListener(mainMenu);
 		this.setJMenuBar(mainMenu);
 
+		controller.newDrawing(new Dimension(500, 380));
 		pack();
 		setVisible(true);
 
@@ -173,6 +124,16 @@ public class DrawGUI extends JFrame {
 	public void updateDrawing() {
 
 		drawingContainer.setDrawing(controller.getDrawing());
+
+		controller.getDrawing().getSelection().addClearSelectedShapesActionListener(tools);
+		controller.getDrawing().getSelection().addClearSelectedShapesActionListener(mainMenu);
+
+		controller.getDrawing().getSelection().addSelectShapeActionListener(tools);
+		controller.getDrawing().getSelection().addSelectShapeActionListener(mainMenu);
+
+		controller.getDrawing().getSelection().addSelectedManyShapesActionListener(tools);
+		controller.getDrawing().getSelection().addSelectedManyShapesActionListener(mainMenu);
+
 		scrollpane.setPreferredSize(new Dimension(drawingContainer
 				.getPreferredSize().width + 100, drawingContainer
 				.getPreferredSize().height + 100));

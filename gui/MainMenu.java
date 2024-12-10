@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import events.*;
+
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -24,8 +26,11 @@ import javax.swing.SpinnerNumberModel;
  * @author Alex Lagerstedt
  * 
  */
-public class MainMenu extends JMenuBar {
-
+public class MainMenu extends JMenuBar implements ClearSelectedShapesActionListener,
+		SelectedManyShapesActionListener, SelectedShapeActionListener,
+		RedoStackChangedActionListener, UndoStackChangedActionListener,
+		ShapeHasBeenDeletedActionListener
+{
 	/**
 	 * A dialog that asks the user for the size for a new Drawing.
 	 * 
@@ -110,6 +115,13 @@ public class MainMenu extends JMenuBar {
 
 	private JMenuItem redo;
 
+	private JMenuItem clear;
+
+	private JMenuItem delete;
+
+	private JMenuItem all;
+
+
 	public MainMenu(MenuListener listener) {
 
 		JMenu fileMenu = new JMenu("File");
@@ -128,15 +140,19 @@ public class MainMenu extends JMenuBar {
 
 		JMenu editMenu = new JMenu("Edit");
 		undo = new JMenuItem("Undo", new ImageIcon("img/edit-undo.png"));
+		undo.setEnabled(false);
 		redo = new JMenuItem("Redo", new ImageIcon("img/edit-redo.png"));
+		redo.setEnabled(false);
 
 		JMenu selectionMenu = new JMenu("Selection");
-		JMenuItem all = new JMenuItem("Select all", new ImageIcon(
+		all = new JMenuItem("Select all", new ImageIcon(
 				"img/edit-select-all.png"));
-		JMenuItem clear = new JMenuItem("Clear selection", new ImageIcon(
+		clear = new JMenuItem("Clear selection", new ImageIcon(
 				"img/edit-clear.png"));
-		JMenuItem delete = new JMenuItem("Delete", new ImageIcon(
+		clear.setEnabled(false);
+		delete = new JMenuItem("Delete", new ImageIcon(
 				"img/edit-delete.png"));
+		delete.setEnabled(false);
 		delete.setActionCommand("Delete");
 
 		final JMenu helpMenu = new JMenu("Help");
@@ -205,4 +221,45 @@ public class MainMenu extends JMenuBar {
 		this.add(selectionMenu);
 		this.add(helpMenu);
 	}
+
+
+
+	@Override
+	public void clearSelectedShapes(ClearSelectedShapesActionEvent event)
+	{
+		clear.setEnabled(false);
+		delete.setEnabled(false);
+	}
+
+	@Override
+	public void selectedShape(SelectedShapeActionEvent event)
+	{
+		clear.setEnabled(true);
+		delete.setEnabled(true);
+	}
+
+	@Override
+	public void selectedManyShapes(SelectedManyShapesActionEvent event)
+	{
+		clear.setEnabled(true);
+		delete.setEnabled(true);
+	}
+
+	@Override
+	public void redoStackChanged(RedoStackChangedActionEvent event) {
+		redo.setEnabled(event.canRedo());
+	}
+
+	@Override
+	public void undoStackChanged(UndoStackChangedActionEvent event) {
+		undo.setEnabled(event.canUndo());
+	}
+
+	@Override
+	public void shapeHasBeenDeleted(ShapeHasBeenDeletedActionEvent event)
+	{
+		clear.setEnabled(false);
+		delete.setEnabled(false);
+	}
+
 }
