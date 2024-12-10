@@ -60,4 +60,13 @@ public class ChangeSizeAction implements DrawAction, UnityAction {
 
         return true;
     }
+
+    @Override
+    public void setNonUnity() {}
+
+    @Override
+    public boolean canUnity()
+    {
+        return true;
+    }
 }

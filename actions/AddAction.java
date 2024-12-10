@@ -57,4 +57,13 @@ public class AddAction implements DrawAction, UnityAction {
 		this.s.setPoint2(otherCommand.newPoint2);
 		return true;
 	}
+
+	@Override
+	public void setNonUnity() {}
+
+	@Override
+	public boolean canUnity()
+	{
+		return true;
+	}
 }

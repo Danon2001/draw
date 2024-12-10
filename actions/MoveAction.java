@@ -12,6 +12,7 @@ public class MoveAction implements DrawAction, UnityAction {
 
 	Selection selected;
 	Point movement;
+	boolean isUnity;
 
 	/**
 	 * Creates a MoveAction that moves all Shapes in the given Selection in the
@@ -27,6 +28,7 @@ public class MoveAction implements DrawAction, UnityAction {
 	public MoveAction(Selection s, Point m) {
 		this.selected = s.clone();
 		this.movement = m;
+		this.isUnity = true;
 	}
 
 	public void execute() {
@@ -47,21 +49,31 @@ public class MoveAction implements DrawAction, UnityAction {
 
 	public boolean unity(UnityAction otherObject)
 	{
-		if (!(otherObject instanceof MoveAction))
+		if (otherObject instanceof MoveAction otherCommand && otherCommand.isUnity && this.isUnity)
 		{
-			return false;
+			if (this.selected.equals(otherCommand.selected))
+			{
+				this.movement.translate(otherCommand.movement.x, otherCommand.movement.y);
+				return true;
+			}
 		}
-
-		MoveAction otherCommand = (MoveAction) otherObject;
-
-		if (!this.selected.equals(otherCommand.selected))
+		if (otherObject instanceof CompleteMoveAction)
 		{
-			return false;
+			this.setNonUnity();
+			return true;
 		}
-
-		this.movement.translate(otherCommand.movement.x, otherCommand.movement.y);
-
-		return true;
+		return false;
 	}
 
+	@Override
+	public void setNonUnity()
+	{
+		isUnity= false;
+	}
+
+	@Override
+	public boolean canUnity()
+	{
+		return this.isUnity;
+	}
 }
