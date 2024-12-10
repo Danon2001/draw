@@ -23,7 +23,8 @@ public class DeleteAction implements DrawAction {
 		this.selection = selection.clone();
 	}
 
-	public void execute() {
+	public void execute()
+	{
 		selection.removeShapesDraw();
 	}
 

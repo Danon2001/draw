@@ -1,6 +1,5 @@
 package gui;
 
-public enum Tool {
+public enum ToolEnum {
     CIRCLE, SQUARE, RECTANGLE, TEXT, LINE, SELECT
-
 }
