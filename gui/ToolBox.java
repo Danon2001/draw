@@ -77,6 +77,7 @@ public class ToolBox extends JToolBar implements SelectedShapeActionListener
 		colorbutton.addChangedColorListener(c);
 
 		fontSizes = new FontSizes();
+		fontSizes.setEnabled(false);
 
 		add(Box.createRigidArea(new Dimension(10, 10)));
 		add(new JLabel("Fill"));
@@ -103,7 +104,7 @@ public class ToolBox extends JToolBar implements SelectedShapeActionListener
 		toolsList.put(ToolEnum.LINE, new LineTool(c));
 		toolsList.put(ToolEnum.RECTANGLE, new RectangleTool(c));
 		toolsList.put(ToolEnum.CIRCLE, new CircleTool(c));
-		toolsList.put(ToolEnum.TEXT, new TextTool(c));
+		toolsList.put(ToolEnum.TEXT, new TextTool(c, fontSizes));
 	}
 
 
@@ -145,6 +146,7 @@ public class ToolBox extends JToolBar implements SelectedShapeActionListener
 	public void setSelectedTool(Tool tool)
 	{
 		selectFillCheckBox.setEnabled(tool instanceof FillableShapeTool);
+		fontSizes.setEnabled(tool instanceof TextTool);
 
 		this.selectedTool = tool;
 	}

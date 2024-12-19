@@ -1,6 +1,7 @@
 package tools;
 
 import controller.DrawingController;
+import gui.FontSizes;
 import shapes.Text;
 
 import javax.swing.*;
@@ -9,9 +10,12 @@ import java.awt.event.MouseEvent;
 
 public class TextTool extends ShapeTool
 {
-    public TextTool(DrawingController controller)
+    private FontSizes fontSizes;
+
+    public TextTool(DrawingController controller, FontSizes fontSizes)
     {
         super(controller, new ImageIcon("img/text.png"), "Create text");
+        this.fontSizes = fontSizes;
     }
 
     @Override

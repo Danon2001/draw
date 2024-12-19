@@ -101,9 +101,29 @@ public class Drawing implements Iterable<Shape>
 
     public static Drawing fromString(String string)
     {
-        String[] pointString = string.split(",");
-        Point point = new Point(Integer.parseInt(pointString[0].trim()), Integer.parseInt(pointString[1].trim()));
-        return new Drawing(new Dimension(point.x, point.y));
+        try
+        {
+            // Удаляем фигурные скобки, если они присутствуют
+            string = string.trim().replaceAll("[{}]", "");
+
+            // Разделяем строку на части по запятой
+            String[] pointString = string.split(",");
+            if (pointString.length != 2)
+            {
+                throw new IllegalArgumentException("Invalid input format. Expected format: '{width,height}'");
+            }
+
+            // Парсим ширину и высоту
+            int width = Integer.parseInt(pointString[0].trim());
+            int height = Integer.parseInt(pointString[1].trim());
+
+            // Создаем объект Drawing
+            return new Drawing(new Dimension(width, height));
+
+        } catch (NumberFormatException e)
+        {
+            throw new IllegalArgumentException("Invalid number format in input string: " + string, e);
+        }
     }
 
     public void removeShape(Shape s)
