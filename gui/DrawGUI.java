@@ -44,7 +44,6 @@ public class DrawGUI extends JFrame {
 			drawing.addRepaintActionListener(drawingPan);
 			drawing.addShapeIsInsertedActionListener(drawingPan);
 			drawing.addShapeHasBeenDeletedActionListener(drawingPan);
-			drawing.addShapeHasBeenDeletedActionListener(mainMenu);
 			setPreferredSize(drawingPan.getPreferredSize());
 
 			pack();
@@ -55,7 +54,7 @@ public class DrawGUI extends JFrame {
 			return drawingPan;
 		}
 
-		}
+	}
 
 
 	public class StatusBar extends JLabel
@@ -105,13 +104,15 @@ public class DrawGUI extends JFrame {
 		getContentPane().add(tools, BorderLayout.WEST);
 		getContentPane().add(scrollpane, BorderLayout.CENTER);
 
-		MenuListener mainMenuListener = new MenuListener(controller, drawingContainer);
-		mainMenu = new MainMenu(mainMenuListener);
-		controller.getUndoManager().addChangedUndoStackActionListener(mainMenu);
-		controller.getUndoManager().addChangedRedoStackActionListener(mainMenu);
+		mainMenu = new MainMenu(controller, drawingContainer);
+		controller.addEnableClearActionListener(mainMenu);
+		controller.addEnableSelectAllActionListener(mainMenu);
+		controller.addEnableDeleteActionListener(mainMenu);
+		controller.addEnableUndoActionListener(mainMenu);
+		controller.addEnableRedoActionListener(mainMenu);
 		this.setJMenuBar(mainMenu);
 
-		controller.newDrawing(new Dimension(500, 380));
+		this.updateDrawing();
 		pack();
 		setVisible(true);
 
@@ -121,18 +122,11 @@ public class DrawGUI extends JFrame {
 	 * Updates the GUI to show the Drawing instance that is currently controlled
 	 * by the DrawingController.
 	 */
-	public void updateDrawing() {
-
+	public void updateDrawing()
+	{
 		drawingContainer.setDrawing(controller.getDrawing());
 
-		controller.getDrawing().getSelection().addClearSelectedShapesActionListener(tools);
-		controller.getDrawing().getSelection().addClearSelectedShapesActionListener(mainMenu);
-
 		controller.getDrawing().getSelection().addSelectShapeActionListener(tools);
-		controller.getDrawing().getSelection().addSelectShapeActionListener(mainMenu);
-
-		controller.getDrawing().getSelection().addSelectedManyShapesActionListener(tools);
-		controller.getDrawing().getSelection().addSelectedManyShapesActionListener(mainMenu);
 
 		scrollpane.setPreferredSize(new Dimension(drawingContainer
 				.getPreferredSize().width + 100, drawingContainer
