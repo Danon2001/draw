@@ -1,56 +1,54 @@
 package tools;
 
 import controller.DrawingController;
-import gui.ToolBox;
 import shapes.Circle;
-import shapes.Shape;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
-public class CircleTool extends Tool
+
+public class CircleTool extends FillableShapeTool
 {
-
-    private DrawingController controller;
-
-    private ToolBox tools;
-
-    private Shape newShape;
-
-
-    public CircleTool(DrawingController controller, ToolBox tools)
+    public CircleTool(DrawingController controller)
     {
-        this.imageIcon = new ImageIcon("img/circle.png");
-        this.hintText = "Draw circles and ellipses";
-        this.controller = controller;
-        this.tools = tools;
+        super(controller, new ImageIcon("img/circle.png"), "Draw circles and ellipses");
     }
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        controller.changeSizeShape(newShape, e.getPoint());
+        controller.changeSizeShape(shape, e.getPoint());
     }
 
     @Override
     public void mousePressed(MouseEvent e)
     {
         Point position = e.getPoint();
-        newShape = new Circle(position.x, position.y, tools.getFill());
-        controller.colorShape(newShape, tools.getColor());
-        controller.addShape(newShape);
+        shape = shapeFactory.createCircle(position, controller.getToolBox().getFill(), controller.getToolBox().getColor());
+        controller.addShape(shape);
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        newShape = null;
+        shape = null;
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {}
 
+    public CircleTool(Circle circle) {
+        super(circle);
+    }
+
     @Override
-    public boolean isFillable() {
-        return true;
+    public void drawFilled(Graphics g)
+    {
+        g.fillOval(shape.getPosition().x, shape.getPosition().y, shape.getSize().x, shape.getSize().y);
+    }
+
+    @Override
+    public void drawNonFilled(Graphics g)
+    {
+        g.drawOval(shape.getPosition().x, shape.getPosition().y, shape.getSize().x, shape.getSize().y);
     }
 }

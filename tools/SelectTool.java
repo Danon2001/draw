@@ -10,17 +10,13 @@ import java.awt.event.MouseEvent;
 
 public class SelectTool extends Tool
 {
-    private DrawingController controller;
-
     protected Point lastPosition;
 
     private boolean isDragged = false;
 
     public SelectTool(DrawingController controller)
     {
-        this.imageIcon = new ImageIcon("img/cursor.png");
-        this.hintText = "Select and move shapes";
-        this.controller = controller;
+        super(controller, new ImageIcon("img/cursor.png"), "Select and move shapes");
     }
 
     @Override
@@ -59,11 +55,6 @@ public class SelectTool extends Tool
 
     public void mouseMoved(MouseEvent e) {
         lastPosition = e.getPoint();
-    }
-
-    @Override
-    public boolean isFillable() {
-        return true;
     }
 
 }

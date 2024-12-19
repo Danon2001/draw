@@ -1,21 +1,32 @@
-package gui.graphicShapes;
+package tools;
 
+import controller.DrawingController;
 import shapes.Shape;
+import shapes.ShapeFactory;
 
+import javax.swing.*;
 import java.awt.*;
 
-public abstract class GraphicShape {
-
+public abstract class ShapeTool extends Tool
+{
     protected Shape shape;
+
+    protected ShapeFactory shapeFactory;
 
     private static final double DEFAULT_STROKE_WIDTH = 2;
 
     protected double strokeWidth;
 
-    public GraphicShape(Shape shape)
+    public ShapeTool(Shape shape)
     {
         this.shape = shape;
         strokeWidth = DEFAULT_STROKE_WIDTH;
+    }
+
+    public ShapeTool(DrawingController controller, ImageIcon imageIcon, String hintText)
+    {
+        super(controller, imageIcon, hintText);
+        this.shapeFactory = new ShapeFactory();
     }
 
     public void draw(Graphics g)
@@ -28,7 +39,8 @@ public abstract class GraphicShape {
         }
     }
 
-    public void drawSelectionIndicator(Graphics g) {
+    private void drawSelectionIndicator(Graphics g)
+    {
 
         ((Graphics2D) g).setStroke(new BasicStroke((float) 1.0));
         g.setColor(new Color(255, 0, 255));

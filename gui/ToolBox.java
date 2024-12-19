@@ -3,6 +3,7 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.ItemEvent;
 import java.util.HashMap;
 
 import javax.swing.Box;
@@ -20,8 +21,7 @@ import shapes.Shape;
 import tools.*;
 
 
-public class ToolBox extends JToolBar implements SelectedShapeActionListener,
-		SelectedManyShapesActionListener, ClearSelectedShapesActionListener
+public class ToolBox extends JToolBar implements SelectedShapeActionListener
 {
 
 	private static final long serialVersionUID = 1L;
@@ -36,7 +36,7 @@ public class ToolBox extends JToolBar implements SelectedShapeActionListener,
 
 	public static final ToolEnum[] namesOfTools = new ToolEnum[]{ ToolEnum.SELECT, ToolEnum.LINE, ToolEnum.RECTANGLE, ToolEnum.CIRCLE, ToolEnum.TEXT};
 
-	private HashMap<ToolEnum, tools.Tool> toolsList = new HashMap<>();
+	private HashMap<ToolEnum, Tool> toolsList = new HashMap<>();
 
 
 	public ToolBox(DrawingController c)
@@ -60,7 +60,6 @@ public class ToolBox extends JToolBar implements SelectedShapeActionListener,
 				{
 					c.clearSelection();
 				}
-				selectFillCheckBox.setEnabled(toolsList.get(tool).isFillable());
 				setSelectedTool(toolsList.get(tool));
 			});
 			btn.setToolTipText(toolsList.get(tool).getHintText());
@@ -69,8 +68,8 @@ public class ToolBox extends JToolBar implements SelectedShapeActionListener,
 		}
 
 		selectFillCheckBox = new SelectFillCheckBox();
-		selectFillCheckBox.addActionListener(e -> {
-			c.toggleFilled();
+		selectFillCheckBox.addItemListener(e -> {
+			c.toggleFilled(e.getStateChange() ==  ItemEvent.SELECTED);
 		});
 		this.c.addFillingChangedActionListener(selectFillCheckBox);
 
@@ -101,10 +100,10 @@ public class ToolBox extends JToolBar implements SelectedShapeActionListener,
 	public void makeListOfTools()
 	{
 		toolsList.put(ToolEnum.SELECT, new SelectTool(c));
-		toolsList.put(ToolEnum.LINE, new LineTool(c, this));
-		toolsList.put(ToolEnum.RECTANGLE, new RectangleTool(c, this));
-		toolsList.put(ToolEnum.CIRCLE, new CircleTool(c, this));
-		toolsList.put(ToolEnum.TEXT, new TextTool(c, this));
+		toolsList.put(ToolEnum.LINE, new LineTool(c));
+		toolsList.put(ToolEnum.RECTANGLE, new RectangleTool(c));
+		toolsList.put(ToolEnum.CIRCLE, new CircleTool(c));
+		toolsList.put(ToolEnum.TEXT, new TextTool(c));
 	}
 
 
@@ -145,6 +144,8 @@ public class ToolBox extends JToolBar implements SelectedShapeActionListener,
 
 	public void setSelectedTool(Tool tool)
 	{
+		selectFillCheckBox.setEnabled(tool instanceof FillableShapeTool);
+
 		this.selectedTool = tool;
 	}
 
@@ -155,7 +156,8 @@ public class ToolBox extends JToolBar implements SelectedShapeActionListener,
 		Shape selectedShape = event.getShape();
 
 		colorbutton.setEnabled(true);
-		colorbutton.setSelectedColor(selectedShape.getColor());
+		fontSizes.setEnabled(false);
+		colorbutton.setSelectedColor(selectedShape.getColor(), false);
 
 		if (selectedShape instanceof FillableShape)
 		{
@@ -169,27 +171,8 @@ public class ToolBox extends JToolBar implements SelectedShapeActionListener,
 
 		if (selectedShape instanceof Text)
 		{
-			fontSizes.setEnabled(true);
 			this.setFontSize(((Text) selectedShape).getFont().getSize());
-		} else
-		{
-			fontSizes.setEnabled(false);
 		}
 	}
 
-	@Override
-	public void selectedManyShapes(SelectedManyShapesActionEvent event)
-	{
-		selectFillCheckBox.setEnabled(false);
-		colorbutton.setEnabled(false);
-		fontSizes.setEnabled(false);
-	}
-
-	@Override
-	public void clearSelectedShapes(ClearSelectedShapesActionEvent event)
-	{
-		selectFillCheckBox.setEnabled(true);
-		colorbutton.setEnabled(true);
-		fontSizes.setEnabled(true);
-	}
 }

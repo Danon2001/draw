@@ -1,10 +1,10 @@
 package gui;
 
 import events.*;
-import gui.graphicShapes.GraphicShape;
-import gui.graphicShapes.GraphicShapesFactory;
 import shapes.Drawing;
 import shapes.Shape;
+import tools.ShapeTool;
+import tools.ShapeToolFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,13 +19,13 @@ public class DrawingPan extends JPanel implements ConditionHasChangedActionListe
 {
     private static final long serialVersionUID = 0;
 
-    private ArrayList<GraphicShape> graphicShapes;
+    private ArrayList<ShapeTool> graphicShapes;
 
-    private GraphicShapesFactory graphicShapeFactory;
+    private ShapeToolFactory graphicShapeFactory;
 
     public DrawingPan(Drawing drawing, ToolBox toolBox)
     {
-        graphicShapes = new ArrayList<GraphicShape>(0);
+        graphicShapes = new ArrayList<ShapeTool>(0);
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -57,7 +57,7 @@ public class DrawingPan extends JPanel implements ConditionHasChangedActionListe
             }
         });
 
-        graphicShapeFactory = new GraphicShapesFactory();
+        graphicShapeFactory = new ShapeToolFactory();
 
         setBorder(BorderFactory.createLineBorder(Color.black));
         setBackground(Color.WHITE);
@@ -85,7 +85,7 @@ public class DrawingPan extends JPanel implements ConditionHasChangedActionListe
 
     public void drawShapes(Graphics g)
     {
-        for (GraphicShape graphicShape : graphicShapes)
+        for (ShapeTool graphicShape : graphicShapes)
         {
             graphicShape.draw(g);
         }

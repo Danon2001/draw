@@ -1,15 +1,15 @@
-package gui.graphicShapes;
+package tools;
 
 import shapes.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class GraphicShapesFactory
+public class ShapeToolFactory
 {
-    private Map<Shape, GraphicShape> shapes = new HashMap<>();
+    private Map<Shape, ShapeTool> shapes = new HashMap<>();
 
-    public GraphicShape create(Shape shape)
+    public ShapeTool create(Shape shape)
     {
         if(shapes.containsKey(shape))
         {
@@ -38,55 +38,56 @@ public class GraphicShapesFactory
         }
     }
 
-    public GraphicCircle create(Circle circle)
+    public CircleTool create(Circle circle)
     {
         if(shapes.containsKey(circle))
         {
-            return (GraphicCircle) shapes.get(circle);
+            return (CircleTool) shapes.get(circle);
         }
-        GraphicCircle graphicCircle = new GraphicCircle(circle);
+        CircleTool graphicCircle = new CircleTool(circle);
         shapes.put(circle, graphicCircle);
         return graphicCircle;
     }
 
-    public GraphicLine create(Line line)
+    public LineTool create(Line line)
     {
         if(shapes.containsKey(line))
         {
-            return (GraphicLine) shapes.get(line);
+            return (LineTool) shapes.get(line);
         }
-        GraphicLine graphicLine = new GraphicLine(line);
+        LineTool graphicLine = new LineTool(line);
         shapes.put(line, graphicLine);
         return graphicLine;
     }
 
-    public GraphicRectangle create(Rectangle rectangle)
+    public RectangleTool create(Rectangle rectangle)
     {
         if(shapes.containsKey(rectangle))
         {
-            return (GraphicRectangle) shapes.get(rectangle);
+            return (RectangleTool) shapes.get(rectangle);
         }
-        GraphicRectangle graphicRectangle = new GraphicRectangle(rectangle);
+        RectangleTool graphicRectangle = new RectangleTool(rectangle);
         shapes.put(rectangle, graphicRectangle);
         return graphicRectangle;
     }
 
-    public GraphicText create(Text text)
+    public TextTool create(Text text)
     {
         if(shapes.containsKey(text))
         {
-            return (GraphicText) shapes.get(text);
+            return (TextTool) shapes.get(text);
         }
-        GraphicText graphicText = new GraphicText(text);
+        TextTool graphicText = new TextTool(text);
         shapes.put(text, graphicText);
         return graphicText;
     }
 
-    public GraphicShape getGraphicShape(Shape shape) {
+    public ShapeTool getGraphicShape(Shape shape) {
         return shapes.get(shape);
     }
 
     public void removeGraphicShape(Shape shape) {
         shapes.remove(shape);
     }
+
 }

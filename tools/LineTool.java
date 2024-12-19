@@ -1,48 +1,36 @@
 package tools;
 
 import controller.DrawingController;
-import gui.ToolBox;
 import shapes.Line;
-import shapes.Shape;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
-public class LineTool extends Tool
+
+public class LineTool extends ShapeTool
 {
-    private DrawingController controller;
-
-    private ToolBox tools;
-
-    private Shape newShape;
-
-
-    public LineTool(DrawingController controller, ToolBox tools)
+    public LineTool(DrawingController controller)
     {
-        this.imageIcon = new ImageIcon("img/line.png");
-        this.hintText = "Draw lines";
-        this.controller = controller;
-        this.tools = tools;
+        super(controller, new ImageIcon("img/line.png"), "Draw lines");
     }
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        controller.changeSizeShape(newShape, e.getPoint());
+        controller.changeSizeShape(shape, e.getPoint());
     }
 
     @Override
     public void mousePressed(MouseEvent e)
     {
         Point position = e.getPoint();
-        newShape = new Line(position.x, position.y);
-        controller.colorShape(newShape, tools.getColor());
-        controller.addShape(newShape);
+        shape = shapeFactory.createLine(position, controller.getToolBox().getColor());
+        controller.addShape(shape);
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        newShape = null;
+        shape = null;
     }
 
     @Override
@@ -50,8 +38,15 @@ public class LineTool extends Tool
 
     }
 
+    public LineTool(Line line) {
+        super(line);
+    }
+
     @Override
-    public boolean isFillable() {
-        return false;
+    public void drawShape(Graphics g)
+    {
+        ((Graphics2D) g).setStroke(new BasicStroke((float) strokeWidth));
+
+        g.drawLine(shape.getPoint1().x, shape.getPoint1().y, shape.getPoint2().x, shape.getPoint2().y);
     }
 }
