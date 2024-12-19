@@ -1,7 +1,6 @@
 package shapes;
 
-import java.awt.Font;
-import java.awt.Point;
+import java.awt.*;
 
 
 public class Text extends Shape
@@ -47,6 +46,25 @@ public class Text extends Shape
 
 	public String getText()
 	{
+		return text;
+	}
+
+	public static String getName()
+	{
+		return "text";
+	}
+
+	public static Text fromString(String string)
+	{
+		String[] parts = string.split(";");
+		parts[0] = parts[0].trim();
+		Point point1 = getPointFromString(parts[1]);
+		Point point2 = getPointFromString(parts[2]);
+		int fontSize = Integer.parseInt(parts[4].trim());
+		Text text = new Text(point1.x, point1.y, fontSize, parts[5]);
+		text.setPoint2(point2);
+		text.setColor(new Color(Integer.parseInt(parts[3]
+				.trim())));
 		return text;
 	}
 

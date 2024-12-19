@@ -1,7 +1,6 @@
 package shapes;
 
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -89,14 +88,32 @@ public class Drawing implements Iterable<Shape>
         }
     }
 
+    public String toString()
+    {
+        String result = "";
+        result += String.format("{%d,%d}\n", this.getSize().width, this.getSize().height);
+        for (Shape s : shapes)
+        {
+            result += s.toString() + "\n";
+        }
+        return result;
+    }
+
+    public static Drawing fromString(String string)
+    {
+        String[] pointString = string.split(",");
+        Point point = new Point(Integer.parseInt(pointString[0].trim()), Integer.parseInt(pointString[1].trim()));
+        return new Drawing(new Dimension(point.x, point.y));
+    }
+
     public void removeShape(Shape s)
     {
         for(ConditionHasChangedActionListener listener: repaintActionListener)
         {
             s.removeRepaintActionListener(listener);
         }
-        this.fireShapeHasBeenDeleted(s);
         shapes.remove(s);
+        this.fireShapeHasBeenDeleted(s);
         this.fireConditionHasChanged();
     }
 
@@ -112,6 +129,15 @@ public class Drawing implements Iterable<Shape>
         {
             selection.add(s);
         }
+    }
+
+    public boolean isEmpty()
+    {
+        return shapes.isEmpty();
+    }
+
+    public Shape getByIndex(int i) {
+        return shapes.get(i);
     }
 
 

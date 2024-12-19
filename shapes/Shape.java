@@ -132,6 +132,14 @@ public abstract class Shape
 	public abstract Shape clone();
 
 
+	protected static Point getPointFromString(String string)
+	{
+		String[] p = string.split(",");
+		return new Point(Integer.parseInt(p[0].trim()), Integer.parseInt(p[1]
+				.trim()));
+	}
+
+
 
 	// ------------------------------- EVENTS ---------------------------------
 

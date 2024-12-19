@@ -34,14 +34,9 @@ public class Selection implements Iterable<Shape> {
         {
             return;
         }
-        if(this.drawing.getSelection().isEmpty())
-        {
-            this.fireSelectedShape(s);
-        } else
-        {
-            this.fireSelectedManyShapes();
-        }
+
         selected.add(s);
+        this.fireSelectedShape(s);
         s.setSelected(true);
         this.fireConditionHasChanged();
     }
@@ -119,6 +114,23 @@ public class Selection implements Iterable<Shape> {
                 return false;
             }
         }
+        else if (obj instanceof Drawing otherDrawing)
+        {
+            if(this.selected.size() == otherDrawing.nShapes())
+            {
+                boolean result = true;
+
+                for(int i = 0; i < this.selected.size(); i++)
+                {
+                    result &= this.selected.get(i).equals(otherDrawing.getByIndex(i));
+                }
+
+                return result;
+            } else
+            {
+                return false;
+            }
+        }
         return super.equals(obj);
     }
 
@@ -130,14 +142,18 @@ public class Selection implements Iterable<Shape> {
         }
     }
 
-    public void switchingFillShapes()
+    public boolean isSelectedAll()
+    {
+        return this.equals(drawing);
+    }
+
+    public void switchingFillShapes(boolean fill)
     {
         for (Shape s : selected)
         {
-            if (s instanceof FillableShape)
+            if (s instanceof FillableShape fs)
             {
-                FillableShape fs = (FillableShape) s;
-                fs.setFilled(!(fs).getFilled());
+                fs.setFilled(fill);
             }
         }
     }
@@ -227,27 +243,6 @@ public class Selection implements Iterable<Shape> {
             SelectedShapeActionEvent event = new SelectedShapeActionEvent(listener);
             event.setShape(shape);
             listener.selectedShape(event);
-        }
-    }
-
-    private ArrayList<SelectedManyShapesActionListener> selectedManyShapesActionListeners = new ArrayList<>();
-
-    public void addSelectedManyShapesActionListener(SelectedManyShapesActionListener listener)
-    {
-        selectedManyShapesActionListeners.add(listener);
-    }
-
-    public void removeSelectedManyShapesActionListener(SelectedManyShapesActionListener listener)
-    {
-        selectedManyShapesActionListeners.remove(listener);
-    }
-
-    private void fireSelectedManyShapes()
-    {
-        for(SelectedManyShapesActionListener listener: selectedManyShapesActionListeners)
-        {
-            SelectedManyShapesActionEvent event = new SelectedManyShapesActionEvent(listener);
-            listener.selectedManyShapes(event);
         }
     }
 }
