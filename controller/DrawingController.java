@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import actions.*;
 import events.*;
+import gui.SaveAsHandler;
 import shapes.Shape;
 import shapes.Drawing;
 import shapes.FillableShape;
@@ -15,7 +16,10 @@ import gui.DrawGUI;
 import gui.ToolBox;
 
 
-public class DrawingController implements ChangedColorActionListener
+public class DrawingController implements ChangedColorActionListener,
+        ClearSelectedShapesActionListener, SelectedShapeActionListener,
+        RedoStackChangedActionListener, UndoStackChangedActionListener,
+        ShapeHasBeenDeletedActionListener, ShapeIsInsertedActionListener
 {
     private DrawGUI gui;
     private UndoManager undoManager;
@@ -25,8 +29,10 @@ public class DrawingController implements ChangedColorActionListener
 
     public DrawingController(DrawGUI g)
     {
-        drawing = null;
+        this.setDrawing(new Drawing(new Dimension(500, 380)));
         undoManager = new UndoManager();
+        undoManager.addChangedUndoStackActionListener(this);
+        undoManager.addChangedRedoStackActionListener(this);
         gui = g;
     }
 
@@ -42,12 +48,6 @@ public class DrawingController implements ChangedColorActionListener
         DrawAction add = new ChangeSizeAction(s, point2);
         add.execute();
         undoManager.addAction(add);
-    }
-
-    public void colorShape(Shape shape, Color color)
-    {
-        DrawAction c = new ColorAction(shape, color);
-        c.execute();
     }
 
     public void colorSelectedShapes(Color c)
@@ -72,6 +72,19 @@ public class DrawingController implements ChangedColorActionListener
         return drawing;
     }
 
+    private void setDrawing(Drawing drawing)
+    {
+        this.drawing = drawing;
+        drawing.addShapeHasBeenDeletedActionListener(this);
+        drawing.addShapeIsInsertedActionListener(this);
+        drawing.getSelection().addClearSelectedShapesActionListener(this);
+        drawing.getSelection().addSelectShapeActionListener(this);
+    }
+
+    public UndoManager getUndoManager() {
+        return undoManager;
+    }
+
     public void moveSelectedShapes(Point movement)
     {
         if (!drawing.getSelection().isEmpty())
@@ -92,9 +105,28 @@ public class DrawingController implements ChangedColorActionListener
         }
     }
 
-    public void newDrawing(Dimension size)
+    public void newDrawing(Dimension size, SaveAsHandler handler)
     {
-        drawing = new Drawing(size);
+        if(!drawing.isEmpty())
+        {
+            handler.showHandlerMessageWithRequest();
+        }
+        this.undoManager.clear();
+        this.setDrawing(new Drawing(size));
+        if (gui != null)
+        {
+            gui.updateDrawing();
+        }
+    }
+
+    public void newDrawing(Drawing drawing, SaveAsHandler handler)
+    {
+        if(!drawing.isEmpty())
+        {
+            handler.showHandlerMessageWithRequest();
+        }
+        this.undoManager.clear();
+        this.setDrawing(drawing);
         if (gui != null)
         {
             gui.updateDrawing();
@@ -114,16 +146,11 @@ public class DrawingController implements ChangedColorActionListener
         drawing.selectAllShapes();
     }
 
-    public void toggleFilled()
+    public void toggleFilled(boolean fill)
     {
-        DrawAction toggle = new FillAction(drawing.getSelection());
+        DrawAction toggle = new FillAction(drawing.getSelection(), fill);
         toggle.execute();
         undoManager.addAction(toggle);
-    }
-
-    public UndoManager getUndoManager()
-    {
-        return undoManager;
     }
 
     public void undo()
@@ -167,10 +194,58 @@ public class DrawingController implements ChangedColorActionListener
         this.toolBox = toolBox;
     }
 
+    public ToolBox getToolBox() {
+        return this.toolBox;
+    }
+
+
+
     @Override
     public void changedColor(ChangedColorActionEvent event)
     {
         this.colorSelectedShapes(event.getColor());
+    }
+
+    @Override
+    public void clearSelectedShapes(ClearSelectedShapesActionEvent event)
+    {
+        this.fireClearEnabled(false);
+        this.fireDeleteEnabled(false);
+        this.fireSelectAllEnabled(!drawing.isEmpty());
+    }
+
+    @Override
+    public void redoStackChanged(RedoStackChangedActionEvent event)
+    {
+        this.fireRedoEnabled(event.canRedo());
+    }
+
+    @Override
+    public void selectedShape(SelectedShapeActionEvent event)
+    {
+        this.fireClearEnabled(true);
+        this.fireDeleteEnabled(true);
+        this.fireSelectAllEnabled(!drawing.getSelection().isSelectedAll());
+    }
+
+    @Override
+    public void shapeHasBeenDeleted(ShapeHasBeenDeletedActionEvent event)
+    {
+        this.fireClearEnabled(false);
+        this.fireDeleteEnabled(false);
+        this.fireSelectAllEnabled(!drawing.isEmpty());
+    }
+
+    @Override
+    public void undoStackChanged(UndoStackChangedActionEvent event)
+    {
+        this.fireUndoEnabled(event.canUndo());
+    }
+
+    @Override
+    public void shapeIsInserted(ShapeIsInsertedActionEvent event)
+    {
+        this.fireSelectAllEnabled(!drawing.getSelection().isSelectedAll());
     }
 
 
@@ -189,5 +264,119 @@ public class DrawingController implements ChangedColorActionListener
         fillingChangedActionListeners.remove(listener);
     }
 
+
+    private ArrayList<EnableClearActionListener> enableClearActionListeners = new ArrayList<>();
+
+    public void addEnableClearActionListener(EnableClearActionListener listener)
+    {
+        enableClearActionListeners.add(listener);
+    }
+
+    public void removeEnableClearActionListener(EnableClearActionListener listener)
+    {
+        enableClearActionListeners.remove(listener);
+    }
+
+    private void fireClearEnabled(boolean isEnable)
+    {
+        for(EnableClearActionListener listener: enableClearActionListeners)
+        {
+            EnableClearActionEvent event = new EnableClearActionEvent(listener);
+            event.setEnable(isEnable);
+            listener.clearEnabled(event);
+        }
+    }
+
+
+    private ArrayList<EnableSelectAllActionListener> enableSelectAllActionListeners = new ArrayList<>();
+
+    public void addEnableSelectAllActionListener(EnableSelectAllActionListener listener)
+    {
+        enableSelectAllActionListeners.add(listener);
+    }
+
+    public void removeEnableSelectAllActionListener(EnableSelectAllActionListener listener)
+    {
+        enableSelectAllActionListeners.remove(listener);
+    }
+
+    private void fireSelectAllEnabled(boolean isEnable)
+    {
+        for(EnableSelectAllActionListener listener: enableSelectAllActionListeners)
+        {
+            EnableSelectAllActionEvent event = new EnableSelectAllActionEvent(listener);
+            event.setEnable(isEnable);
+            listener.selectAllEnabled(event);
+        }
+    }
+
+
+    private ArrayList<EnableDeleteActionListener> enableDeleteActionListeners = new ArrayList<>();
+
+    public void addEnableDeleteActionListener(EnableDeleteActionListener listener)
+    {
+        enableDeleteActionListeners.add(listener);
+    }
+
+    public void removeEnableDeleteActionListener(EnableDeleteActionListener listener)
+    {
+        enableDeleteActionListeners.remove(listener);
+    }
+
+    private void fireDeleteEnabled(boolean isEnable)
+    {
+        for(EnableDeleteActionListener listener: enableDeleteActionListeners)
+        {
+            EnableDeleteActionEvent event = new EnableDeleteActionEvent(listener);
+            event.setEnable(isEnable);
+            listener.deleteEnabled(event);
+        }
+    }
+
+
+    private ArrayList<EnableRedoActionListener> enableRedoActionListeners = new ArrayList<>();
+
+    public void addEnableRedoActionListener(EnableRedoActionListener listener)
+    {
+        enableRedoActionListeners.add(listener);
+    }
+
+    public void removeEnableRedoActionListener(EnableRedoActionListener listener)
+    {
+        enableRedoActionListeners.remove(listener);
+    }
+
+    private void fireRedoEnabled(boolean isEnable)
+    {
+        for(EnableRedoActionListener listener: enableRedoActionListeners)
+        {
+            EnableRedoActionEvent event = new EnableRedoActionEvent(listener);
+            event.setEnable(isEnable);
+            listener.redoEnabled(event);
+        }
+    }
+
+
+    private ArrayList<EnableUndoActionListener> enableUndoActionListeners = new ArrayList<>();
+
+    public void addEnableUndoActionListener(EnableUndoActionListener listener)
+    {
+        enableUndoActionListeners.add(listener);
+    }
+
+    public void removeEnableUndoActionListener(EnableUndoActionListener listener)
+    {
+        enableUndoActionListeners.remove(listener);
+    }
+
+    private void fireUndoEnabled(boolean isEnable)
+    {
+        for(EnableUndoActionListener listener: enableUndoActionListeners)
+        {
+            EnableUndoActionEvent event = new EnableUndoActionEvent(listener);
+            event.setEnable(isEnable);
+            listener.undoEnabled(event);
+        }
+    }
 }
 
