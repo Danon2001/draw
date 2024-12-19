@@ -8,9 +8,8 @@ import shapes.Selection;
  * MoveAction implements a single undoable action where all the Shapes in a
  * given Selection are moved.
  */
-public class MoveAction implements DrawAction, UnityAction {
-
-	Selection selected;
+public class MoveAction extends SelectionAction implements DrawAction, UnityAction
+{
 	Point movement;
 	boolean isUnity;
 
@@ -25,14 +24,15 @@ public class MoveAction implements DrawAction, UnityAction {
 	 *            the amount the shapes should be moved, relative to the
 	 *            original position
 	 */
-	public MoveAction(Selection s, Point m) {
-		this.selected = s.clone();
+	public MoveAction(Selection s, Point m)
+	{
+		super(s);
 		this.movement = m;
 		this.isUnity = true;
 	}
 
 	public void execute() {
-		selected.move(movement.x, movement.y);
+		select.move(movement.x, movement.y);
 	}
 
 	public String getDescription() {
@@ -44,14 +44,14 @@ public class MoveAction implements DrawAction, UnityAction {
 	}
 
 	public void undo() {
-		selected.move(-movement.x, -movement.y);
+		select.move(-movement.x, -movement.y);
 	}
 
 	public boolean unity(UnityAction otherObject)
 	{
 		if (otherObject instanceof MoveAction otherCommand && otherCommand.isUnity && this.isUnity)
 		{
-			if (this.selected.equals(otherCommand.selected))
+			if (this.select.equals(otherCommand.select))
 			{
 				this.movement.translate(otherCommand.movement.x, otherCommand.movement.y);
 				return true;

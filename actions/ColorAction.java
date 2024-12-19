@@ -9,9 +9,8 @@ import shapes.Shape;
  * are changed.
  */
 
-public class ColorAction implements DrawAction {
-
-	Shape shape;
+public class ColorAction extends ShapeAction implements DrawAction
+{
 
 	Color oldColor;
 	Color newColor;
@@ -24,8 +23,9 @@ public class ColorAction implements DrawAction {
 	 * @param newColor
 	 *            the new color for the shape.
 	 */
-	public ColorAction(Shape s, Color newColor) {
-		shape = s;
+	public ColorAction(Shape s, Color newColor)
+	{
+		super(s);
 		this.oldColor = s.getColor();
 		this.newColor = newColor;
 	}

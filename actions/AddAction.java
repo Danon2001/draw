@@ -7,10 +7,9 @@ import shapes.Shape;
  * AddAction implements a single undoable action where a Shape is added to a
  * Drawing.
  */
-public class AddAction implements DrawAction, UnityAction {
-
+public class AddAction extends ShapeAction implements DrawAction, UnityAction
+{
 	Drawing d;
-	Shape s;
 
 	/**
 	 * Creates an AddAction that adds the given Shape to the given Drawing.
@@ -20,13 +19,14 @@ public class AddAction implements DrawAction, UnityAction {
 	 * @param sh
 	 *            the shape to be added.
 	 */
-	public AddAction(Drawing dr, Shape sh) {
+	public AddAction(Drawing dr, Shape sh)
+	{
+		super(sh);
 		this.d = dr;
-		this.s = sh;
 	}
 
 	public void execute() {
-		d.insertShape(s);
+		d.insertShape(shape);
 	}
 
 	public String getDescription() {
@@ -38,7 +38,7 @@ public class AddAction implements DrawAction, UnityAction {
 	}
 
 	public void undo() {
-		d.removeShape(s);
+		d.removeShape(shape);
 	}
 
 	@Override
@@ -50,11 +50,11 @@ public class AddAction implements DrawAction, UnityAction {
 
 		ChangeSizeAction otherCommand = (ChangeSizeAction) otherObject;
 
-		if (!this.s.equals(otherCommand.shape)) {
+		if (!this.shape.equals(otherCommand.shape)) {
 			return false;
 		}
 
-		this.s.setPoint2(otherCommand.newPoint2);
+		this.shape.setPoint2(otherCommand.newPoint2);
 		return true;
 	}
 

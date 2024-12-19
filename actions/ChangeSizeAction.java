@@ -6,17 +6,15 @@ import java.awt.Point;
 /* Класс создан для реализации действия изменения размера (или изменения позиции конечной точки) объекта Shape.
  Он инкапсулирует всю информацию, необходимую для изменения размера фигуры, и позволяет это действие выполнить,
   отменить или объединить с аналогичными действиями. */
-public class ChangeSizeAction implements DrawAction, UnityAction {
-
-    Shape shape;
-
+public class ChangeSizeAction extends ShapeAction implements DrawAction, UnityAction
+{
     Point newPoint2;
     Point oldPoint2;
 
 
     public ChangeSizeAction(Shape shape, Point point2)
     {
-        this.shape = shape;
+        super(shape);
         this.newPoint2 = point2;
         this.oldPoint2 = shape.getPoint2();
     }
@@ -42,8 +40,8 @@ public class ChangeSizeAction implements DrawAction, UnityAction {
     }
 
     @Override
-    public boolean unity(UnityAction otherObject) {
-
+    public boolean unity(UnityAction otherObject)
+    {
         if (!(otherObject instanceof ChangeSizeAction))
         {
             return false;
